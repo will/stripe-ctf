@@ -3,19 +3,10 @@
 
 char pointers[MAX_DATA];
 int  currentOffset = 0;
-int ptrNum = 0;
-int sizes[MAX_DATA];
 
-void *willmalloc(int numBytes)
-{
+void *willmalloc(int numBytes) {
     char *ptr = pointers + currentOffset;
-    //currentOffset += numBytes;
     currentOffset += numBytes + (16 - (numBytes%16));
-
-    //if (currentOffset >= MAX_DATA)
-    //    return NULL;
-
-    sizes[ptrNum++] = numBytes;
     return ptr;
 }
 
