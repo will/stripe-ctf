@@ -1,3 +1,24 @@
+// 10 MB of data that can be allocated
+#define MAX_DATA 10485760
+
+char pointers[MAX_DATA];
+int  currentOffset = 0;
+int ptrNum = 0;
+int sizes[MAX_DATA];
+
+void *willmalloc(int numBytes)
+{
+    char *ptr = pointers + currentOffset;
+    //currentOffset += numBytes;
+    currentOffset += numBytes + (16 - (numBytes%16));
+
+    //if (currentOffset >= MAX_DATA)
+    //    return NULL;
+
+    sizes[ptrNum++] = numBytes;
+    return ptr;
+}
+
 #ifndef CRITBIT_H_
 #define CRITBIT_H_
 
@@ -105,9 +126,8 @@ uint8*p= t->root;
 #line 191 "./critbit.w"
 
 if(!p){
-char*x;
-int a= posix_memalign((void**)&x,sizeof(void*),ulen+1);
-if(a)return 0;
+char*x = willmalloc(ulen+1);
+//int a= posix_memalign((void**)&x,sizeof(void*),ulen+1);
 memcpy(x,u,ulen+1);
 t->root= x;
 return 2;
@@ -187,14 +207,15 @@ int newdirection= (1+(newotherbits|c))>>8;
 /*14:*/
 #line 271 "./critbit.w"
 
-critbit0_node*newnode;
-if(posix_memalign((void**)&newnode,sizeof(void*),sizeof(critbit0_node)))return 0;
+//critbit0_node*newnode;
+//if(posix_memalign((void**)&newnode,sizeof(void*),sizeof(critbit0_node)))return 0;
+critbit0_node*newnode = willmalloc(sizeof(critbit0_node));
 
-char*x;
-if(posix_memalign((void**)&x,sizeof(void*),ulen+1)){
-free(newnode);
-return 0;
-}
+char*x = willmalloc(ulen+1);
+//if(posix_memalign((void**)&x,sizeof(void*),ulen+1)){
+//free(newnode);
+//return 0;
+//}
 memcpy(x,ubytes,ulen+1);
 
 newnode->byte= newbyte;
