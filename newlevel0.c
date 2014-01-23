@@ -338,7 +338,8 @@ int(*handle)(const char*,void*),void*arg){
 
 if(1&(intptr_t)top){
 critbit0_node*q= (void*)(top-1);
-for(int direction= 0;direction<2;++direction)
+int direction;
+for(direction= 0;direction<2;++direction)
 switch(allprefixed_traverse(q->child[direction],handle,arg)){
 case 1:break;
 case 0:return 0;
@@ -385,7 +386,8 @@ if(q->byte<ulen)top= p;
 /*25:*/
 #line 547 "./critbit.w"
 
-for(size_t i= 0;i<ulen;++i){
+size_t i;
+for(i= 0;i<ulen;++i){
 if(p[i]!=ubytes[i])return 1;
 }
 
