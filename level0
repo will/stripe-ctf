@@ -6,11 +6,11 @@
 # have it already.
 
 path = ARGV.length > 0 ? ARGV[0] : '/usr/share/dict/words'
-entries = File.read(path).split("\n")
+entries = Hash[ File.read(path).split("\n").map{|w| [w,true]} ]
 
 contents = $stdin.read
 output = contents.gsub(/[^ \n]+/) do |word|
-  if entries.include?(word.downcase)
+  if entries[word.downcase]
     word
   else
     "<#{word}>"
