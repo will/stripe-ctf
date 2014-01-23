@@ -422,13 +422,6 @@ while (fscanf(dict, "%s", word) == 1) {
 }
 
 
-// Search for different keys
-//printf("%s --- %s\n", "the", output[search(&trie, "the")] );
-////printf("%s --- %s\n", "these", output[search(&trie, "these")] );
-//printf("%s --- %s\n", "their", output[search(&trie, "their")] );
-//printf("%s --- %s\n", "thaw", output[search(&trie, "thaw")] );
-
-
   i = 0;
   bool cant = false;
   while(1) {
@@ -455,12 +448,6 @@ while (fscanf(dict, "%s", word) == 1) {
       i++;
     }
   }
-  //while (scanf("%s", word) != EOF) {
-  //  printf("<%s>",word);
-  //}
-  // while( fgets(str, 60, stdin) ) {
-  //    printf("%s",str);
-  // }
 
    return(0);
 }
