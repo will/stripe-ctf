@@ -1,3 +1,4 @@
+#define COMPACT 0
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
@@ -22,7 +23,7 @@
 #define MAX_DATA (10*1048576) // x1MB
 #define ADDR 0x7ffff731b000
 
-size_t useWalloc = 1;
+bool useWalloc = true;
 
 int  currentOffset = 0;
 void *walloc(int numBytes) {
@@ -379,6 +380,33 @@ critbit0_allprefixed(critbit0_tree*t,const char*prefix,
 
 /*:23*/
 
+
+
+
+static void*
+critbit_copy(void* top){
+  uint8*p = top;
+  if(1&(intptr_t)p){
+    critbit0_node*original= (void*)(p-1);
+    critbit0_node*newnode = walloc(sizeof(critbit0_node));
+
+    newnode->byte = original->byte;
+    newnode->otherbits = original->otherbits;
+    newnode->child[0] = critbit_copy(original->child[0]);
+    newnode->child[1] = critbit_copy(original->child[1]);
+    return newnode;
+  }else{
+    const char*u=p;
+    const size_t ulen= strlen(u);
+    char*x = walloc(ulen+1);
+    strcpy(x, u);
+    return x;
+  }
+}
+
+
+
+
 #ifndef MAP_ANON
 #define MAP_ANON 0x20
 #endif
@@ -409,6 +437,9 @@ int main(int argc,char *argv[]) {
   //printf("\nw pointer %zu", treeRoot);
 
   if (argc==3) {
+#ifdef COMPACT
+    useWalloc = false;
+#endif
     // printf("\npointer %zu", tree.root);
     FILE *dict;
     dict = fopen(argv[1],"r");
@@ -416,8 +447,20 @@ int main(int argc,char *argv[]) {
       if (!isupper(word[0])) { critbit0_insert(&tree, word); }
     }
     // printf("\npointer %zu", tree.root);
+
+
+#ifdef COMPACT
+    useWalloc = true;
+
+    critbit0_tree newTree = {0};
+    newTree.root = critbit_copy(tree.root);
+
+
+    *treeRoot = newTree.root;
+#else
     *treeRoot = tree.root;
-    printf("%d", currentOffset);
+#endif
+      printf("offset: %d , newRoot: %zu", currentOffset, *treeRoot);
 
     return 0;
   } else {
