@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Add any build steps you need here
-dd if=/dev/zero of=mem bs=757360 count=1
+dd if=/dev/zero of=mem bs=378720 count=1
 if [ Darwin = `uname -s` ]; then
 cc -O0 -g newlevel0.c -o level0 -D_DARWIN_C_SOURCE
 else
