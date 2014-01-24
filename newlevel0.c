@@ -108,7 +108,6 @@ critbit0_contains(critbit0_tree*t,const char*u){
 
   /*7:*/
 
-  puts(p);
   return 0==strcmp(u,(const char*)p);
 
   /*:7*/
@@ -391,10 +390,10 @@ critbit_copy(void* top){
     critbit0_node*original= (void*)(p-1);
     critbit0_node*newnode = walloc(sizeof(critbit0_node));
 
-    newnode->byte = original->byte;
-    newnode->otherbits = original->otherbits;
     newnode->child[0] = critbit_copy(original->child[0]);
     newnode->child[1] = critbit_copy(original->child[1]);
+    newnode->byte = original->byte;
+    newnode->otherbits = original->otherbits;
     return newnode;
   }else{
     const char*u=p;
@@ -434,7 +433,11 @@ int main(int argc,char *argv[]) {
   critbit0_tree tree = {0};
   // printf("\npointer %zu", tree.root);
 
+#ifdef COMPACT
+  void **treeRoot = ADDR;
+#else
   void **treeRoot = walloc(sizeof(void *));
+#endif
   //printf("\nw pointer %zu", treeRoot);
 
   if (argc==3) {
@@ -466,7 +469,7 @@ int main(int argc,char *argv[]) {
     return 0;
   } else {
     tree.root = *treeRoot;
-    // printf("\npointer %zu", tree.root);
+     printf("\npointer %zu", tree.root);
   }
 
 
