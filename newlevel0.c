@@ -380,7 +380,7 @@ fd = open("mem",  O_RDWR);
 if (argc==3) {
  ssize_t s = mmap((void *) ADDR, MAX_DATA, PROT_READ | PROT_WRITE,  MAP_SHARED | MAP_FIXED, fd, 0);
 } else {
-ssize_t s = mmap((void *) ADDR, MAX_DATA, PROT_READ | PROT_WRITE,  MAP_PRIVATE | MAP_ANON | MAP_FIXED, -1, 0);
+ssize_t s = mmap((void *) ADDR, MAX_DATA, PROT_READ | PROT_WRITE,  MAP_PRIVATE | MAP_ANONYMOUS | MAP_FIXED, -1, 0);
 //printf("mmap ret: %zi, %s\n", s, strerror(errno));
 int len = read(fd, (void *) ADDR, MAX_DATA);
 //printf("read ret: %d, %s\n", len, strerror(errno));
