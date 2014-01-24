@@ -23,7 +23,8 @@
 //define MAX_DATA 10485760 //10MB
 //#define MAX_DATA (10*1048576) // x1MB
 //#define MAX_DATA 757360
-#define MAX_DATA 378720
+#define MAX_DATA 504928
+
 #define ADDR 0x7ffff731b000
 
 bool useWalloc = true;
@@ -309,7 +310,7 @@ int main(int argc,char *argv[]) {
 
   if (argc==3) {
     // printf("\npointer %zu", tree.root);
-  bloom_init(bloom, 210687, 0.001);
+  bloom_init(bloom, 210687, 0.0001);
     FILE *dict;
     dict = fopen(argv[1],"r");
     while (fscanf(dict, "%s", word) == 1) {
