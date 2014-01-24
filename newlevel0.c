@@ -359,10 +359,7 @@ int main(int argc,char *argv[]) {
       i = 0;
     } else {
       word[i] = c;
-      if (c >= 'A' && c <= 'Z')
-        lword[i] = c | 32;
-      else
-        lword[i] =c;
+      lword[i] = c | 32;
 
       if (c != '\n' && c != ' ' && (lword[i] < 'a' || lword[i] > 'z')) { cant = true; }
       i++;
