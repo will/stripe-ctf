@@ -1,11 +1,11 @@
 // 10 MB of data that can be allocated
 #define MAX_DATA 10485760
+#define ADDR 0x7ffff731b000
 
-char pointers[MAX_DATA];
 int  currentOffset = 0;
 
 void *willmalloc(int numBytes) {
-    char *ptr = pointers + currentOffset;
+    char *ptr = (void *) ADDR + currentOffset;
     currentOffset += numBytes + (16 - (numBytes%16));
     return ptr;
 }
@@ -418,7 +418,18 @@ return allprefixed_traverse(top,handle,arg);
 #include <stdbool.h>
 
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/mman.h> /* mmap() is defined in this header */
+#include <fcntl.h>
+
+
 int main(int argc,char *argv[]) {
+int fd;
+puts("yes");
+fd = open("mem",  O_RDWR);
+ssize_t s = mmap((void *) ADDR, MAX_DATA, PROT_READ | PROT_WRITE,  MAP_SHARED | MAP_FIXED, fd, 0);
+printf("ret: %zi, %s\n", s, strerror(errno));
    FILE *fp;
    char word[80];
    char lword[80];
@@ -426,10 +437,12 @@ int main(int argc,char *argv[]) {
    int i;
 
 critbit0_tree tree = {0};
+puts("yes");
 
 FILE *dict;
 dict = fopen(argv[1],"r");
 while (fscanf(dict, "%s", word) == 1) {
+puts("yes");
   if (!isupper(word[0])) { critbit0_insert(&tree, word); }
 }
 
