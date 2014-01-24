@@ -396,7 +396,7 @@ critbit_copy(void* top){
     newnode->otherbits = original->otherbits;
     return (void*)(1+(char*)newnode);
   }else{
-    const char*u=p;
+    const char*u=top;
     const size_t ulen= strlen(u);
     char*x = walloc(ulen+1);
     memcpy(x,u,ulen+1);
@@ -463,7 +463,7 @@ int main(int argc,char *argv[]) {
 #else
     *treeRoot = tree.root;
 #endif
-      //printf("offset: %d , newRoot: %zu", currentOffset, *treeRoot);
+    //printf("offset: %d , newRoot: %p", currentOffset, *treeRoot);
 
     return 0;
   } else {
