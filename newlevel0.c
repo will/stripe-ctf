@@ -1,14 +1,38 @@
+#include <stdint.h>
+#include <string.h>
+#include <stdlib.h>
+
+#include <sys/types.h>
+#include <errno.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdbool.h>
+#include <unistd.h>
+
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/mman.h> /* mmap() is defined in this header */
+#include <fcntl.h>
+
 // 10 MB of data that can be allocated
-#define MAX_DATA 10485760 //10MB
-//define MAX_DATA 2097152 //2MB
+//define MAX_DATA 10485760 //10MB
+#define MAX_DATA (10*1048576) // x1MB
 #define ADDR 0x7ffff731b000
 
-int  currentOffset = 0;
+size_t useWalloc = 1;
 
+int  currentOffset = 0;
 void *walloc(int numBytes) {
-    char *ptr = (void *) ADDR + currentOffset;
-    currentOffset += numBytes + (16 - (numBytes%16));
-    return ptr;
+    if (useWalloc) {
+      char *ptr = (void *) ADDR + currentOffset;
+      currentOffset += numBytes + (16 - (numBytes%16));
+      return ptr;
+    } else {
+      return malloc(numBytes);
+    }
 }
 
 #ifndef CRITBIT_H_
@@ -39,12 +63,6 @@ extern "C" {
 #define uint32 uint32_t
 /*2:*/
 
-#include <stdint.h>
-#include <string.h>
-#include <stdlib.h>
-
-#include <sys/types.h>
-#include <errno.h>
 
 typedef struct{
 void*child[2];
@@ -360,19 +378,6 @@ return allprefixed_traverse(top,handle,arg);
 }
 
 /*:23*/
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-#include <stdbool.h>
-#include <unistd.h>
-
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/mman.h> /* mmap() is defined in this header */
-#include <fcntl.h>
-
 
 #ifndef MAP_ANON
 #define MAP_ANON 0x20
@@ -383,9 +388,9 @@ int main(int argc,char *argv[]) {
 int fd;
 fd = open("mem",  O_RDWR);
 if (argc==3) {
- ssize_t s = mmap((void *) ADDR, MAX_DATA, PROT_READ | PROT_WRITE,  MAP_SHARED | MAP_FIXED, fd, 0);
+void * s = mmap((void *) ADDR, MAX_DATA, PROT_READ | PROT_WRITE,  MAP_SHARED | MAP_FIXED, fd, 0);
 } else {
-ssize_t s = mmap((void *) ADDR, MAX_DATA, PROT_READ | PROT_WRITE,  MAP_PRIVATE | MAP_ANON | MAP_FIXED, -1, 0);
+void * s = mmap((void *) ADDR, MAX_DATA, PROT_READ | PROT_WRITE,  MAP_PRIVATE | MAP_ANON | MAP_FIXED, -1, 0);
 //printf("mmap ret: %zi, %s\n", s, strerror(errno));
 int len = read(fd, (void *) ADDR, MAX_DATA);
 //printf("read ret: %d, %s\n", len, strerror(errno));
@@ -412,7 +417,7 @@ if (argc==3) {
   }
 // printf("\npointer %zu", tree.root);
  *treeRoot = tree.root;
- //printf("%d", currentOffset);
+ printf("%d", currentOffset);
 
  return 0;
 } else {
@@ -427,7 +432,7 @@ if (argc==3) {
   char input[163840];
   size_t lenread = 0;
   size_t readthistime;
-  while (readthistime = read(0, input + lenread, 163840))
+  while ((readthistime = read(0, input + lenread, 163840)))
        lenread += readthistime;
 
   while(1) {
