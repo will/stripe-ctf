@@ -4,7 +4,7 @@
 
 int  currentOffset = 0;
 
-void *willmalloc(int numBytes) {
+void *walloc(int numBytes) {
     char *ptr = (void *) ADDR + currentOffset;
     currentOffset += numBytes + (16 - (numBytes%16));
     return ptr;
@@ -117,7 +117,7 @@ uint8*p= t->root;
 #line 191 "./critbit.w"
 
 if(!p){
-char*x = willmalloc(ulen+1);
+char*x = walloc(ulen+1);
 //int a= posix_memalign((void**)&x,sizeof(void*),ulen+1);
 memcpy(x,u,ulen+1);
 t->root= x;
@@ -200,9 +200,9 @@ int newdirection= (1+(newotherbits|c))>>8;
 
 //critbit0_node*newnode;
 //if(posix_memalign((void**)&newnode,sizeof(void*),sizeof(critbit0_node)))return 0;
-critbit0_node*newnode = willmalloc(sizeof(critbit0_node));
+critbit0_node*newnode = walloc(sizeof(critbit0_node));
 
-char*x = willmalloc(ulen+1);
+char*x = walloc(ulen+1);
 //if(posix_memalign((void**)&x,sizeof(void*),ulen+1)){
 //free(newnode);
 //return 0;
@@ -426,10 +426,9 @@ return allprefixed_traverse(top,handle,arg);
 
 int main(int argc,char *argv[]) {
 int fd;
-puts("yes");
 fd = open("mem",  O_RDWR);
 ssize_t s = mmap((void *) ADDR, MAX_DATA, PROT_READ | PROT_WRITE,  MAP_SHARED | MAP_FIXED, fd, 0);
-printf("ret: %zi, %s\n", s, strerror(errno));
+//printf("ret: %zi, %s\n", s, strerror(errno));
    FILE *fp;
    char word[80];
    char lword[80];
@@ -437,13 +436,24 @@ printf("ret: %zi, %s\n", s, strerror(errno));
    int i;
 
 critbit0_tree tree = {0};
-puts("yes");
+ // printf("\npointer %zu", tree.root);
 
-FILE *dict;
-dict = fopen(argv[1],"r");
-while (fscanf(dict, "%s", word) == 1) {
-puts("yes");
-  if (!isupper(word[0])) { critbit0_insert(&tree, word); }
+void **treeRoot = walloc(sizeof(void *));
+//printf("\nw pointer %zu", treeRoot);
+
+if (argc==3) {
+ // printf("\npointer %zu", tree.root);
+  FILE *dict;
+  dict = fopen(argv[1],"r");
+  while (fscanf(dict, "%s", word) == 1) {
+    if (!isupper(word[0])) { critbit0_insert(&tree, word); }
+  }
+// printf("\npointer %zu", tree.root);
+ *treeRoot = tree.root;
+ return 0;
+} else {
+  tree.root = *treeRoot;
+// printf("\npointer %zu", tree.root);
 }
 
 
