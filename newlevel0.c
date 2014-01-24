@@ -1,4 +1,4 @@
-#define COMPACT 0
+#define COMPACT
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
@@ -108,6 +108,7 @@ critbit0_contains(critbit0_tree*t,const char*u){
 
   /*7:*/
 
+  puts(p);
   return 0==strcmp(u,(const char*)p);
 
   /*:7*/
@@ -399,7 +400,7 @@ critbit_copy(void* top){
     const char*u=p;
     const size_t ulen= strlen(u);
     char*x = walloc(ulen+1);
-    strcpy(x, u);
+    memcpy(x,u,ulen+1);
     return x;
   }
 }
