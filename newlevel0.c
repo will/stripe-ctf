@@ -359,7 +359,7 @@ int main(int argc,char *argv[]) {
       i = 0;
     } else {
       word[i] = c;
-      if (c > 'A' && c < 'Z')
+      if (c >= 'A' && c <= 'Z')
         lword[i] = c | 32;
       else
         lword[i] =c;
