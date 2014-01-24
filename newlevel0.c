@@ -394,7 +394,7 @@ critbit_copy(void* top){
     newnode->child[1] = critbit_copy(original->child[1]);
     newnode->byte = original->byte;
     newnode->otherbits = original->otherbits;
-    return newnode;
+    return (void*)(1+(char*)newnode);
   }else{
     const char*u=p;
     const size_t ulen= strlen(u);
@@ -433,8 +433,7 @@ int main(int argc,char *argv[]) {
   critbit0_tree tree = {0};
   // printf("\npointer %zu", tree.root);
 
-#ifdef COMPACT
-  void **treeRoot = ADDR;
+#ifdef compact
 #else
   void **treeRoot = walloc(sizeof(void *));
 #endif
@@ -464,12 +463,12 @@ int main(int argc,char *argv[]) {
 #else
     *treeRoot = tree.root;
 #endif
-      printf("offset: %d , newRoot: %zu", currentOffset, *treeRoot);
+      //printf("offset: %d , newRoot: %zu", currentOffset, *treeRoot);
 
     return 0;
   } else {
     tree.root = *treeRoot;
-     printf("\npointer %zu", tree.root);
+     //printf("\npointer %zu", tree.root);
   }
 
 
