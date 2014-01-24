@@ -1,5 +1,6 @@
 // 10 MB of data that can be allocated
-#define MAX_DATA 10485760
+//#define MAX_DATA 10485760 10MB
+#define MAX_DATA 16777216 //2MB
 #define ADDR 0x7ffff731b000
 
 int  currentOffset = 0;
@@ -451,6 +452,8 @@ if (argc==3) {
   }
 // printf("\npointer %zu", tree.root);
  *treeRoot = tree.root;
+ //printf("%d", currentOffset);
+
  return 0;
 } else {
   tree.root = *treeRoot;
