@@ -22,7 +22,7 @@
 // 10 MB of data that can be allocated
 //define MAX_DATA 10485760 //10MB
 //#define MAX_DATA (10*1048576) // x1MB
-//#define MAX_DATA 757360
+//e MAX_DATA 757360
 #define MAX_DATA 504928
 
 #define ADDR 0x7ffff731b000
@@ -359,8 +359,12 @@ int main(int argc,char *argv[]) {
       i = 0;
     } else {
       word[i] = c;
-      lword[i] = tolower(c);
-      if (c != '\n' && c != ' ' && (tolower(c) < 'a' || tolower(c) > 'z')) { cant = true; }
+      if (c > 'A' && c < 'Z')
+        lword[i] = c | 32;
+      else
+        lword[i] =c;
+
+      if (c != '\n' && c != ' ' && (lword[i] < 'a' || lword[i] > 'z')) { cant = true; }
       i++;
     }
     j++;
