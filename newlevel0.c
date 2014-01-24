@@ -21,7 +21,8 @@
 
 // 10 MB of data that can be allocated
 //define MAX_DATA 10485760 //10MB
-#define MAX_DATA (10*1048576) // x1MB
+//#define MAX_DATA (10*1048576) // x1MB
+#define MAX_DATA 757360
 #define ADDR 0x7ffff731b000
 
 bool useWalloc = true;
@@ -31,10 +32,18 @@ void *walloc(int numBytes) {
   if (useWalloc) {
     char *ptr = (void *) ADDR + currentOffset;
     currentOffset += numBytes + (16 - (numBytes%16));
+    //printf("size: %i off: %5x now: %lx max: %lx, diff: %lx\n", numBytes, currentOffset, (long)ADDR+currentOffset, (long)ADDR+MAX_DATA, ((long)MAX_DATA - (long)currentOffset));
     return ptr;
   } else {
     return malloc(numBytes);
   }
+}
+void *wcalloc(int numElem, int numBytes) {
+  int total = numElem * numBytes;
+  void *ptr = walloc(total);
+  memset(ptr, 0, total);
+ // printf("%i %i %p\n", numElem ,numBytes, ptr);
+  return ptr;
 }
 
 
@@ -214,7 +223,7 @@ int bloom_init(struct bloom * bloom, int entries, double error)
 
   bloom->hashes = (int)ceil(0.693147180559945 * bloom->bpe);  // ln(2)
 
-  bloom->bf = (unsigned char *)calloc(bloom->bytes, sizeof(unsigned char));
+  bloom->bf = (unsigned char *)wcalloc(bloom->bytes, sizeof(unsigned char));
   if (bloom->bf == NULL) {
     return 1;
   }
@@ -292,25 +301,27 @@ int main(int argc,char *argv[]) {
   int c;
   int i;
 
-  struct bloom bloom;
-  bloom_init(&bloom, 210687, 0.000001);
   // printf("\npointer %zu", tree.root);
+
+  struct bloom *bloom = walloc(sizeof(struct bloom));
 
 
   if (argc==3) {
     // printf("\npointer %zu", tree.root);
+  bloom_init(bloom, 210687, 0.000001);
     FILE *dict;
     dict = fopen(argv[1],"r");
     while (fscanf(dict, "%s", word) == 1) {
-      if (!isupper(word[0])) { bloom_add(&bloom, word, strlen(word)); }
+      if (!isupper(word[0])) { bloom_add(bloom, word, strlen(word)); }
     }
     // printf("\npointer %zu", tree.root);
 
 
     //*treeRoot = tree.root;
-    //printf("offset: %d , newRoot: %p", currentOffset, *treeRoot);
+    printf("memory used: %d\n", currentOffset);
+    bloom_print(bloom);
 
-   // return 0;
+    return 0;
   } else {
     //tree.root = *treeRoot;
      //printf("\npointer %zu", tree.root);
@@ -338,7 +349,7 @@ int main(int argc,char *argv[]) {
       } else if (cant) {
         printf("<%s>%c",word,c);
         cant = false;
-      } else if (bloom_check(&bloom, lword, i)) {
+      } else if (bloom_check(bloom, lword, i)) {
         printf("%s%c",word,c);
       } else {
         printf("<%s>%c",word,c);
