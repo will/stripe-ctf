@@ -335,6 +335,8 @@ int main(int argc,char *argv[]) {
   int j = 0;
   bool cant = false;
   char input[163840];
+  char output[163840];
+  char *outputptr = output;
   size_t lenread = 0;
   size_t readthistime;
   while ((readthistime = read(0, input + lenread, 163840)))
@@ -347,14 +349,24 @@ int main(int argc,char *argv[]) {
       word[i] = '\0';
       lword[i] = '\0';
       if (word[0] == '\0') {
-        printf("%c",c);
+        *outputptr++ = c;
       } else if (cant) {
-        printf("<%s>%c",word,c);
+        *outputptr++ = '<';
+        memcpy(outputptr, word, i);
+        outputptr += i;
+        *outputptr++ = '>';
+        *outputptr++ = c;
         cant = false;
       } else if (bloom_check(bloom, lword, i)) {
-        printf("%s%c",word,c);
+        memcpy(outputptr, word, i);
+        outputptr += i;
+        *outputptr++ = c;
       } else {
-        printf("<%s>%c",word,c);
+        *outputptr++ = '<';
+        memcpy(outputptr, word, i);
+        outputptr += i;
+        *outputptr++ = '>';
+        *outputptr++ = c;
       }
       i = 0;
     } else {
@@ -366,6 +378,9 @@ int main(int argc,char *argv[]) {
     }
     j++;
   }
+
+  write(1, output, outputptr-output);
+
 
   return(0);
 }
