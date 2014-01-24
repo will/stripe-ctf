@@ -416,6 +416,7 @@ return allprefixed_traverse(top,handle,arg);
 #include <string.h>
 #include <ctype.h>
 #include <stdbool.h>
+#include <unistd.h>
 
 
 #include <sys/types.h>
@@ -458,10 +459,17 @@ if (argc==3) {
 
 
   i = 0;
+  int j = 0;
   bool cant = false;
+  char input[163840];
+  size_t lenread = 0;
+  size_t readthistime;
+  while (readthistime = read(0, input + lenread, 163840))
+       lenread += readthistime;
+
   while(1) {
-    c = getchar();
-    if (c == EOF) { break; }
+    if (j == lenread) { break; }
+    c = input[j];
     if (c == '\n' || c == ' ') {
       word[i] = '\0';
       lword[i] = '\0';
@@ -482,6 +490,7 @@ if (argc==3) {
       if (c != '\n' && c != ' ' && (tolower(c) < 'a' || tolower(c) > 'z')) { cant = true; }
       i++;
     }
+    j++;
   }
 
    return(0);
