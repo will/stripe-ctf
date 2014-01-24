@@ -131,7 +131,7 @@ unsigned int murmurhash2(const void * key, int len, const unsigned int seed)
 
 #include <fcntl.h>
 #include <math.h>
-#include <stdio.h>
+//#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -163,7 +163,7 @@ static int bloom_check_add(struct bloom * bloom,
                            const void * buffer, int len, int add)
 {
   if (bloom->ready == 0) {
-    (void)printf("bloom at %p not initialized!\n", (void *)bloom);
+    //(void)printf("bloom at %p not initialized!\n", (void *)bloom);
     return -1;
   }
 
@@ -246,7 +246,7 @@ int bloom_add(struct bloom * bloom, const void * buffer, int len)
   return bloom_check_add(bloom, buffer, len, 1);
 }
 
-
+/*
 void bloom_print(struct bloom * bloom)
 {
   (void)printf("bloom at %p\n", (void *)bloom);
@@ -257,6 +257,7 @@ void bloom_print(struct bloom * bloom)
   (void)printf(" ->bytes = %d\n", bloom->bytes);
   (void)printf(" ->hash functions = %d\n", bloom->hashes);
 }
+*/
 
 
 void bloom_free(struct bloom * bloom)
@@ -320,8 +321,8 @@ int main(int argc,char *argv[]) {
 
 
     //*treeRoot = tree.root;
-    printf("memory used: %d\n", currentOffset);
-    bloom_print(bloom);
+   // printf("memory used: %d\n", currentOffset);
+   // bloom_print(bloom);
 
     return 0;
   } else {
