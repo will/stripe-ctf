@@ -10,6 +10,8 @@
 #include <string.h>
 #include <ctype.h>
 #include <unistd.h>
+#else
+#include "syscalls.h"
 #endif
 
 #include <stdbool.h>
@@ -17,8 +19,7 @@
 #include <sys/stat.h>
 #include <sys/mman.h> /* mmap() is defined in this header */
 #include <fcntl.h>
-#ifdef FAST
-   void *memcpy(void* dest, const void* src, size_t count) {
+   void *wemcpy(void* dest, const void* src, size_t count) {
         char* dst8 = (char*)dest;
         char* src8 = (char*)src;
 
@@ -38,7 +39,6 @@
         }
         return dest;
     }
-#endif
 
 
 // 10 MB of data that can be allocated
@@ -150,12 +150,12 @@ unsigned int murmurhash2(const void * key, int len, const unsigned int seed)
 
 #include <fcntl.h>
 #include <math.h>
-//#include <stdio.h>
-#include <stdlib.h>
+#ifndef FAST
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#endif
 
 struct bloom
 {
@@ -310,11 +310,7 @@ void bloom_print(struct bloom * bloom)
 #endif
 
 
-#ifdef FAST
-int _start(int argc,char *argv[]) {
-#else
 int main(int argc,char *argv[]) {
-#endif
   int fd;
   fd = open("mem",  O_RDWR);
   if (argc==3) {
@@ -382,18 +378,18 @@ int main(int argc,char *argv[]) {
         *outputptr++ = c;
       } else if (cant) {
         *outputptr++ = '<';
-        memcpy(outputptr, word, i);
+        wemcpy(outputptr, word, i);
         outputptr += i;
         *outputptr++ = '>';
         *outputptr++ = c;
         cant = false;
       } else if (bloom_check(bloom, lword, i)) {
-        memcpy(outputptr, word, i);
+        wemcpy(outputptr, word, i);
         outputptr += i;
         *outputptr++ = c;
       } else {
         *outputptr++ = '<';
-        memcpy(outputptr, word, i);
+        wemcpy(outputptr, word, i);
         outputptr += i;
         *outputptr++ = '>';
         *outputptr++ = c;
