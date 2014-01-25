@@ -1,22 +1,44 @@
 #define COMPACT
+
+#ifndef FAST
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
 
-#include <sys/types.h>
 #include <errno.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <stdbool.h>
 #include <unistd.h>
+#endif
 
-
+#include <stdbool.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h> /* mmap() is defined in this header */
 #include <fcntl.h>
+#ifdef FAST
+   void *memcpy(void* dest, const void* src, size_t count) {
+        char* dst8 = (char*)dest;
+        char* src8 = (char*)src;
+
+        if (count & 1) {
+            dst8[0] = src8[0];
+            dst8 += 1;
+            src8 += 1;
+        }
+
+        count /= 2;
+        while (count--) {
+            dst8[0] = src8[0];
+            dst8[1] = src8[1];
+
+            dst8 += 2;
+            src8 += 2;
+        }
+        return dest;
+    }
+#endif
 
 
 // 10 MB of data that can be allocated
@@ -27,19 +49,15 @@
 
 #define ADDR 0x7ffff731b000
 
-bool useWalloc = true;
 
 int  currentOffset = 0;
 void *walloc(int numBytes) {
-  if (useWalloc) {
-    char *ptr = (void *) ADDR + currentOffset;
-    currentOffset += numBytes + (16 - (numBytes%16));
-    //printf("size: %i off: %5x now: %lx max: %lx, diff: %lx\n", numBytes, currentOffset, (long)ADDR+currentOffset, (long)ADDR+MAX_DATA, ((long)MAX_DATA - (long)currentOffset));
-    return ptr;
-  } else {
-    return malloc(numBytes);
-  }
+  char *ptr = (void *) ADDR + currentOffset;
+  currentOffset += numBytes + (16 - (numBytes%16));
+  //printf("size: %i off: %5x now: %lx max: %lx, diff: %lx\n", numBytes, currentOffset, (long)ADDR+currentOffset, (long)ADDR+MAX_DATA, ((long)MAX_DATA - (long)currentOffset));
+  return ptr;
 }
+#ifndef FAST
 void *wcalloc(int numElem, int numBytes) {
   int total = numElem * numBytes;
   void *ptr = walloc(total);
@@ -47,6 +65,7 @@ void *wcalloc(int numElem, int numBytes) {
  // printf("%i %i %p\n", numElem ,numBytes, ptr);
   return ptr;
 }
+#endif
 
 
 
@@ -199,6 +218,7 @@ static int bloom_check_add(struct bloom * bloom,
 }
 
 
+#ifndef FAST
 int bloom_init(struct bloom * bloom, int entries, double error)
 {
   bloom->ready = 0;
@@ -233,6 +253,7 @@ int bloom_init(struct bloom * bloom, int entries, double error)
   bloom->ready = 1;
   return 0;
 }
+#endif
 
 
 int bloom_check(struct bloom * bloom, const void * buffer, int len)
@@ -241,10 +262,13 @@ int bloom_check(struct bloom * bloom, const void * buffer, int len)
 }
 
 
+#ifndef FAST
 int bloom_add(struct bloom * bloom, const void * buffer, int len)
 {
   return bloom_check_add(bloom, buffer, len, 1);
 }
+#endif
+
 
 /*
 void bloom_print(struct bloom * bloom)
@@ -260,13 +284,13 @@ void bloom_print(struct bloom * bloom)
 */
 
 
-void bloom_free(struct bloom * bloom)
-{
-  if (bloom->ready) {
-    free(bloom->bf);
-  }
-  bloom->ready = 0;
-}
+//void bloom_free(struct bloom * bloom)
+//{
+// if (bloom->ready) {
+//    free(bloom->bf);
+//  }
+//  bloom->ready = 0;
+//}
 
 
 
@@ -286,7 +310,7 @@ void bloom_free(struct bloom * bloom)
 #endif
 
 
-#ifdef WILL
+#ifdef FAST
 int _start(int argc,char *argv[]) {
 #else
 int main(int argc,char *argv[]) {
@@ -302,7 +326,6 @@ int main(int argc,char *argv[]) {
     //printf("read ret: %d, %s\n", len, strerror(errno));
   }
 
-  FILE *fp;
   char word[80];
   char lword[80];
   int c;
@@ -313,6 +336,7 @@ int main(int argc,char *argv[]) {
   struct bloom *bloom = walloc(sizeof(struct bloom));
 
 
+#ifndef FAST
   if (argc==3) {
     // printf("\npointer %zu", tree.root);
   bloom_init(bloom, 210687, 0.0001);
@@ -333,6 +357,7 @@ int main(int argc,char *argv[]) {
     //tree.root = *treeRoot;
      //printf("\npointer %zu", tree.root);
   }
+#endif
 
 
 
@@ -386,7 +411,7 @@ int main(int argc,char *argv[]) {
 
   write(1, output, outputptr-output);
 
-#ifdef WILL
+#ifdef FAST
     /* exit system call */
     asm("movl $1,%eax;"
         "xorl %ebx,%ebx;"
