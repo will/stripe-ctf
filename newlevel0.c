@@ -286,7 +286,11 @@ void bloom_free(struct bloom * bloom)
 #endif
 
 
+#ifdef WILL
+int _start(int argc,char *argv[]) {
+#else
 int main(int argc,char *argv[]) {
+#endif
   int fd;
   fd = open("mem",  O_RDWR);
   if (argc==3) {
@@ -382,6 +386,13 @@ int main(int argc,char *argv[]) {
 
   write(1, output, outputptr-output);
 
-
+#ifdef WILL
+    /* exit system call */
+    asm("movl $1,%eax;"
+        "xorl %ebx,%ebx;"
+        "int  $0x80"
+    );
+#else
   return(0);
+#endif
 }
